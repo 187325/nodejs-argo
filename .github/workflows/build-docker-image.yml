@@ -4,12 +4,13 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'Dockerfile'
-      - 'index.js'
-      - 'package.json'
+      - 'Dockerfile'          
+      - '**.js'               
+      - 'package.json'        
+      - 'package-lock.json'   
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:          
 
 jobs:
   build:
@@ -36,13 +37,15 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
+          # 修正：标签行仅保留纯标签，注释移到标签列表外
           tags: |
-            ghcr.io/${{ github.repository_owner }}/feike:2024
+            ghcr.io/187325/dongguatv:latest  # 注意：GHCR 标签默认小写（dongguatv 而非 dongguaTV）
+            ghcr.io/187325/dongguatv:2024
           labels: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.description=HTTP Server
-            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.source=https://github.com/187325/dongguaTV
+            org.opencontainers.image.description=dongguaTV Project Docker Image
+            org.opencontainers.image.licenses=MIT # 许可证注释可保留（labels允许）
           cache-from: type=gha
           cache-to: type=gha,mode=max
